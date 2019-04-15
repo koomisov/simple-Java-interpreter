@@ -1,0 +1,16 @@
+public class ClassName
+{
+    public static void main() 
+{
+	
+	// comment
+        int i;
+	boolean b;
+        i = 0;
+        while (i++ && i < 5 || ((1+1) && !b))
+		if(i % 2)
+            		System.out.println("PR\"IVET\n");
+		else 
+			i = 31a;
+    }
+}
