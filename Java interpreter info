@@ -5,14 +5,14 @@ Uses recursive descent parser for syntax analyzing and RPN (Reverse Polish notat
 
 Supported features:
 
-comparisons (==, >, <, >=, <=, !=)
-inc and dec (++, --)
-arithmetic expressions (-, +, /, %)
-logical expressions (!, &&, ||)
-string, boolean and int variables
-while and if (with else) constructions
-printing variables and literals sequences (System.out.println("line"))
-blocks ({})
+- comparisons (==, >, <, >=, <=, !=)
+- inc and dec (++, --)
+- arithmetic expressions (-, +, /, %)
+- logical expressions (!, &&, ||)
+- string, boolean and int variables
+- while and if (with else) constructions
+- printing variables and literals sequences (System.out.println("line"))
+- blocks ({})
 
 Warning: variables are not allowed to be initialized.
 
