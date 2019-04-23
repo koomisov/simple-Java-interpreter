@@ -9,7 +9,7 @@ comparisons (==, >, <, >=, <=, !=)
 inc and dec (++, --)
 arithmetic expressions (-, +, /, %)
 logical expressions (!, &&, ||)
-boolean and int variables
+string, boolean and int variables
 while and if (with else) constructions
 printing variables and literals sequences (System.out.println("line"))
 blocks ({})
