@@ -14,10 +14,9 @@
 class Scanner
 {
 public:
-	typedef unsigned long line_type;
 
 	Scanner(std::string filename) :
-		file(filename), line(1), max_num(std::numeric_limits<unsigned long>::max())
+		file(filename), line(1), max_num(std::numeric_limits<int>::max()), min_num(std::numeric_limits<int>::min())
 	{
 		if (!file.is_open())
 			throw Error("Error : can't open the file");
@@ -28,7 +27,8 @@ public:
 
 	Token get_token();
 
-	line_type get_line() const {
+	line_type get_line() const 
+	{
 		return line; 
 	}
 
@@ -36,18 +36,18 @@ private:
 
 	void init_tables();
 
-	enum state_type { START, IDENT, NUMBER, PLUS, MINUS, EQU, AND, OR, DIV, COMMENT, STRING, SCREENING, DELIM };
+	enum class state { START, IDENT, NUMBER, PLUS, MINUS, EQU, AND, OR, DIV, COMMENT, STRING, SCREENING, DELIM };
 
 	using pair_type = std::pair<std::string, token_type>;
 	using init_pair_type = std::initializer_list<pair_type>;
 
 	std::unordered_map<std::string, token_type> table_words, table_delimiters;
 	std::fstream file;
-	state_type state;
+	state state;
 	int symbol;
 	std::string current_token;
 	line_type line;
-	unsigned max_num;
+	int max_num, min_num;
 
 	Token look_delimiters(std::string);
 	Token look_words(std::string);

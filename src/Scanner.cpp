@@ -3,12 +3,12 @@
 
 Token Scanner::get_token()
 {
-	state = START;
+	state = state::START;
 	do 
 	{
 		switch (state)
 		{
-		case START:
+		case state::START:
 			current_token = "";
 			current_token += symbol;
 			if (isspace(symbol))
@@ -18,19 +18,19 @@ Token Scanner::get_token()
 				current_token = "";
 				symbol = file.get();
 			}
-			else if (isalpha(symbol)) { symbol = file.get(); state = IDENT; }
-			else if (isdigit(symbol)) { symbol = file.get(); state = NUMBER; }
-			else if (symbol == '-') { symbol = file.get(); state = MINUS; }
-			else if (symbol == '+') { symbol = file.get(); state = PLUS; }
-			else if (symbol == '&') { symbol = file.get(); state = AND; }
-			else if (symbol == '|') { symbol = file.get(); state = OR; }
-			else if (symbol == '/') { symbol = file.get(); state = DIV; }
-			else if (symbol == '"') { symbol = file.get(); state = STRING; }
-			else if ((symbol == '>') || (symbol == '<') || (symbol == '!') || (symbol == '=')) { symbol = file.get(); state = EQU; }
-			else { symbol = file.get(); state = DELIM; }
+			else if (isalpha(symbol)) { symbol = file.get(); state = state::IDENT; }
+			else if (isdigit(symbol)) { symbol = file.get(); state = state::NUMBER; }
+			else if (symbol == '-') { symbol = file.get(); state = state::MINUS; }
+			else if (symbol == '+') { symbol = file.get(); state = state::PLUS; }
+			else if (symbol == '&') { symbol = file.get(); state = state::AND; }
+			else if (symbol == '|') { symbol = file.get(); state = state::OR; }
+			else if (symbol == '/') { symbol = file.get(); state = state::DIV; }
+			else if (symbol == '"') { symbol = file.get(); current_token.pop_back(); state = state::STRING; }
+			else if ((symbol == '>') || (symbol == '<') || (symbol == '!') || (symbol == '=')) { symbol = file.get(); state = state::EQU; }
+			else { symbol = file.get(); state = state::DELIM; }
 			break;
 
-		case IDENT:
+		case state::IDENT:
 			if (isalpha(symbol) || (isdigit(symbol)) || (symbol == '_'))
 			{
 				current_token += symbol;
@@ -40,7 +40,7 @@ Token Scanner::get_token()
 				return look_words(current_token);
 			break;
 
-		case NUMBER:
+		case state::NUMBER:
 			if (isdigit(symbol))
 			{
 				current_token += symbol;
@@ -50,7 +50,7 @@ Token Scanner::get_token()
 				return to_number(current_token);
 			break;
 
-		case PLUS:
+		case state::PLUS:
 			if (symbol == '+')
 			{
 				current_token += symbol;
@@ -61,7 +61,7 @@ Token Scanner::get_token()
 				Token(TOKEN_PLUS, current_token);
 			break;
 
-		case MINUS:
+		case state::MINUS:
 			if (symbol == '-')
 			{
 				current_token += symbol;
@@ -72,8 +72,9 @@ Token Scanner::get_token()
 				Token(TOKEN_MINUS, current_token);
 			break;
 
-		case EQU:
-			if (symbol == '=') {
+		case state::EQU:
+			if (symbol == '=') 
+			{
 				current_token += symbol;
 				symbol = file.get();
 				return look_delimiters(current_token);
@@ -82,7 +83,7 @@ Token Scanner::get_token()
 				return look_delimiters(current_token);
 			break;
 
-		case AND:
+		case state::AND:
 			if (symbol == '&')
 			{
 				current_token += symbol;
@@ -90,10 +91,10 @@ Token Scanner::get_token()
 				return Token(TOKEN_AND, current_token);
 			}
 			else
-				throw Error("Error in token: < & > - did you mean < && >?", LEX_ANALYSIS, line);
+				throw Error("Error in token: < & > - did you mean < && >?", step_type::LEX_ANALYSIS, line);
 			break;
 
-		case OR:
+		case state::OR:
 			if (symbol == '|')
 			{
 				current_token += symbol;
@@ -101,21 +102,21 @@ Token Scanner::get_token()
 				return Token(TOKEN_OR, current_token);
 			}
 			else
-				throw Error("Error in token: < | > - did you mean < || >?", LEX_ANALYSIS, line);
+				throw Error("Error in token: < | > - did you mean < || >?", step_type::LEX_ANALYSIS, line);
 			break;
 
-		case DIV:
+		case state::DIV:
 			if (symbol == '/')
 			{
 				current_token += symbol;
 				symbol = file.get();
-				state = COMMENT;
+				state = state::COMMENT;
 			}
 			else
 				return Token(TOKEN_DIV, current_token);
 			break;
 
-		case COMMENT:
+		case state::COMMENT:
 			if ((symbol == '\n') || (symbol == EOF))
 				return Token(TOKEN_COMMENT, current_token);
 			else
@@ -125,20 +126,19 @@ Token Scanner::get_token()
 			}
 			break;
 
-		case STRING:
+		case state::STRING:
 			if (symbol == '"')
 			{
-				current_token += symbol;
 				symbol = file.get();
 				return Token(TOKEN_STR, current_token);
 			}
 			else if (symbol == '\\')
 			{
-				state = SCREENING;
+				state = state::SCREENING;
 				symbol = file.get();
 			}
 			else if ((symbol == '\n') || (symbol == EOF))
-				throw Error("Error in token: missing terminating caracter in string", LEX_ANALYSIS, line);
+				throw Error("Error in token: missing terminating caracter in string", step_type::LEX_ANALYSIS, line);
 			else
 			{
 				current_token += symbol;
@@ -146,21 +146,21 @@ Token Scanner::get_token()
 			}
 			break;
 
-		case SCREENING:
+		case state::SCREENING:
 			if (symbol == 'n')
 				current_token.push_back('\n');
 			else if (symbol == 't')
 				current_token += "    ";
 			else if (symbol == EOF || symbol == '\n')
-				throw Error("Error in token: missing terminating caracter in string", LEX_ANALYSIS, line);
+				throw Error("Error in token: missing terminating caracter in string", step_type::LEX_ANALYSIS, line);
 			else 
 				current_token += symbol;
 
 			symbol = file.get();
-			state = STRING;
+			state = state::STRING;
 			break;
 
-		case DELIM:
+		case state::DELIM:
 			return look_delimiters(current_token);
 			break;
 		}
@@ -175,7 +175,7 @@ Token Scanner::look_delimiters(std::string token)
 	if (table_delimiters.count(token))
 		return Token(table_delimiters[token], token);
 	else
-		throw Error("Error in token: invalid combination or characters", LEX_ANALYSIS, line);
+		throw Error("Error in token: invalid combination or characters", step_type::LEX_ANALYSIS, line);
 }
 
 Token Scanner::look_words(std::string token)
@@ -190,13 +190,13 @@ Token Scanner::to_number(std::string token)
 {
 	try
 	{
-		unsigned long number = std::stoul(token);
-		if (number > max_num)
-			throw Error("Error in token: number out of range", LEX_ANALYSIS, line);
+		int number = std::stoi(token);
+		if (number > max_num || number < min_num)
+			throw Error("Error in token: number out of range", step_type::LEX_ANALYSIS, line);
 		return Token(TOKEN_NUM, std::to_string(number));
 	}
-	catch (std::invalid_argument) { throw Error("Error in token: invalid number", LEX_ANALYSIS, line); }
-	catch (std::out_of_range) { throw Error("Error in token: number out range", LEX_ANALYSIS, line); }
+	catch (std::invalid_argument&) { throw Error("Error in token: invalid number", step_type::LEX_ANALYSIS, line); }
+	catch (std::out_of_range&) { throw Error("Error in token: number out of range", step_type::LEX_ANALYSIS, line); }
 }
 
 void Scanner::init_tables()
@@ -215,7 +215,10 @@ void Scanner::init_tables()
 		{"out", TOKEN_OUT},
 		{"println", TOKEN_PRINTL},
 		{"int", TOKEN_INT},
-		{"boolean", TOKEN_BOOL}
+		{"string", TOKEN_STRING},
+		{"boolean", TOKEN_BOOL},
+		{"true", TOKEN_TRUE},
+		{"false", TOKEN_FALSE}
 	};
 
 

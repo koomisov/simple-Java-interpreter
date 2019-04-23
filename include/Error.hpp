@@ -4,7 +4,10 @@
 #include <unordered_map>
 #include <initializer_list>
 
-enum step_type { INIT, LEX_ANALYSIS, SYNT_ANALYSIS, SEM_ANALYSIS };
+
+enum class step_type { INIT, LEX_ANALYSIS, SYNT_ANALYSIS, SEM_ANALYSIS };
+
+using line_type = unsigned int;
 
 class Error
 {
@@ -18,7 +21,7 @@ private:
 
 public:
 
-	Error(std::string reason, step_type step = INIT, long line = 0) : 
+	Error(std::string reason, step_type step = step_type::INIT, long line = 0) :
 		err_reason(reason), err_step(step), err_line(line) 
 	{
 		init_table();
@@ -27,13 +30,13 @@ public:
 	void init_table()
 	{
 		std::initializer_list<std::pair<step_type, std::string>> lst {
-			{INIT, "Initial"},
-			{LEX_ANALYSIS, "Lexical analysis"},
-			{SYNT_ANALYSIS, "Syntax analysis"},
-			{SEM_ANALYSIS, "Semantic analysis"}
+			{step_type::INIT, "Initial"},
+			{step_type::LEX_ANALYSIS, "Lexical analysis"},
+			{step_type::SYNT_ANALYSIS, "Syntax analysis"},
+			{step_type::SEM_ANALYSIS, "Semantic analysis"}
 		};
 
-		name_table.insert(lst.begin(), lst.end());
+		name_table.insert(std::make_move_iterator(lst.begin()), std::make_move_iterator(lst.end()));
 
 	}
 
@@ -49,7 +52,7 @@ public:
 		return name_table.at(err_step);
 	}
 
-	long what_line() const { 
+	line_type what_line() const { 
 		return err_line; 
 	}
 

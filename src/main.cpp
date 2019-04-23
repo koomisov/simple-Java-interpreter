@@ -6,6 +6,7 @@
 #include <fstream>
 #include "Scanner.hpp"
 #include "Parser.hpp"
+#include "ExecProgram.hpp"
 
 using namespace std;
 
@@ -13,13 +14,16 @@ using namespace std;
 
 int main()
 {
-	std::string filename = "PROGRAM.txt";
+	std::string filename = "PROGRAM1.txt";
 
 
 	try
 	{
-		Parser parsing(filename);
-		parsing.start();
+		Parser parser(filename);
+		parser.start();
+
+		Program prog(parser.get_poliz(), parser.get_var_table());
+		prog.run();
 	}
 	catch (const Error& err)
 	{
@@ -27,6 +31,7 @@ int main()
 		std::cout << "[line : " << err.what_line() << " ] : " << err.reason() << std::endl;
 	}
 
+	std::cout << std::endl;
 	system("pause");
 	return 0;
 }
