@@ -49,7 +49,7 @@ void Program::executeOutput()
 	}
 }
 
-// -----------------------------------------FUNC FOR PROGRAM EXECUTING-------------------------------------------
+// ----------------------------------------- FUNC FOR PROGRAM EXECUTING -------------------------------------------
 
 void Program::run()
 {
@@ -83,8 +83,9 @@ void Program::execute(AssignmentOperation const&)
 	auto variable = dynamic_cast<Identifier*>(operandsStack.top().get());
 	operandsStack.pop();
 
+
 	if (variable == nullptr || value == nullptr)
-		throw Error("dynamic cast failure, assignment operation", step_type::SEM_ANALYSIS);
+		throw Error("Semantic error : invalid arguments for assignment", step_type::SEM_ANALYSIS);
 
 	if (variable->get_variable_type() == var_type::STRING)
 	{
@@ -97,8 +98,8 @@ void Program::execute(AssignmentOperation const&)
 	}
 	else if (variable->get_variable_type() == var_type::INT)
 	{
-		if(value->get_variable_type() == var_type::STRING)
-			throw Error("Semantic error : invalid operand for int assignment", step_type::SEM_ANALYSIS);
+		if(value->get_variable_type() == var_type::STRING || value->get_variable_type() == var_type::BOOLEAN)
+			throw Error("Semantic error : invalid operand for integer assignment", step_type::SEM_ANALYSIS);
 
 		auto varAddr = static_cast<int*>(this->get_variable_address(variable->get_name()));
 
@@ -130,7 +131,7 @@ void Program::execute(BinaryLogicalOperation const& operation)
 
 	auto ft = firstOperand->get_variable_type(), st = secondOperand->get_variable_type();
 	if (!firstOperand || !secondOperand || ft== var_type::STRING || st == var_type::STRING)
-		throw Error("Invalid arguments for bynary logical operation", step_type::SEM_ANALYSIS);
+		throw Error("Invalid arguments for binary logical operation", step_type::SEM_ANALYSIS);
 	
 
 	std::shared_ptr<LogicalConstant> ptr;
@@ -182,7 +183,7 @@ void Program::execute(BinaryArithmeticOperation const& operation)
 
 	auto ft = firstOperand->get_variable_type(), st = secondOperand->get_variable_type();
 	if (!firstOperand || !secondOperand || ft == var_type::STRING || st == var_type::STRING || ft == var_type::BOOLEAN || st == var_type::BOOLEAN)
-		throw Error("Invalid arguments for bynary arithmetic operation", step_type::SEM_ANALYSIS);
+		throw Error("Invalid arguments for binary arithmetic operation", step_type::SEM_ANALYSIS);
 
 
 	std::shared_ptr<Number> ptr;
@@ -219,21 +220,41 @@ void Program::execute(BinaryArithmeticOperation const& operation)
 
 void Program::execute(PrefArithmeticOperation const& operation)
 {
-	auto operand = dynamic_cast<Identifier*>(operandsStack.top().get());
-	if (operand == nullptr || operand->get_variable_type() != var_type::INT)
-		throw Error("Semantic error : invalid operand for pref <++> operation", step_type::SEM_ANALYSIS);
+	auto t = operation.get_type();
 
+	auto operand = dynamic_cast<Operand*>(operandsStack.top().get());
+	operandsStack.pop();
 
-	auto identPointer = static_cast<int*>(get_variable_address(operand->get_name()));
+	if (operand->get_variable_type() != var_type::INT)
+		throw Error("Semantic error : invalid operand for pref operation, integer expected", step_type::SEM_ANALYSIS);
+	else if (operand->is_identifier())
+	{
+		auto ident = dynamic_cast<Identifier*>(operand);
+		auto identPointer = static_cast<int*>(get_variable_address(ident->get_name()));
 
-	if (operation.get_type() == item_type::PREF_INC)
-		*identPointer += 1;
+		if (t == item_type::PREF_INC)
+			*identPointer += 1;
+		else if (t == item_type::PREF_DEC)
+			*identPointer -= 1;
+
+		auto ptr = std::make_shared<Number>(*identPointer);
+		operandsStack.push(ptr);
+		temporary.push_back(ptr);
+	}
 	else
-		*identPointer -= 1;
+	{
+		int push_value = operand->get_integral_value();
+		if (t == item_type::MINUS)
+			push_value *= -1;
 
-	auto ptr = std::make_shared<Number>(*identPointer);
-	operandsStack.push(ptr);
-	temporary.push_back(ptr);
+		if(t != item_type::MINUS && t != item_type::PLUS)
+			throw Error("Semantic error : invalid operand for pref operation, identifier expected", step_type::SEM_ANALYSIS);
+
+		auto ptr = std::make_shared<Number>(push_value);
+		operandsStack.push(ptr);
+		temporary.push_back(ptr);
+	}
+
 
 }
 
@@ -241,7 +262,9 @@ void Program::execute(PostArithmeticOperation const& operation)
 {
 	auto operand = dynamic_cast<Identifier*>(operandsStack.top().get());
 	if (operand == nullptr || operand->get_variable_type() != var_type::INT)
-		throw Error("Semantic error : invalid operand for pref <++> operation", step_type::SEM_ANALYSIS);
+		throw Error("Semantic error : invalid operand for post operation", step_type::SEM_ANALYSIS);
+
+	operandsStack.pop();
 
 	auto identPointer = static_cast<int*>(get_variable_address(operand->get_name()));
 
@@ -352,7 +375,7 @@ void Program::execute(WhileBlock const& block)
 	operandsStack.pop();
 
 	if (condition->get_variable_type() == var_type::STRING)
-		throw Error("Semantic error : invalid expression in if-block", step_type::SEM_ANALYSIS);
+		throw Error("Semantic error : invalid expression in while-block", step_type::SEM_ANALYSIS);
 
 	if (condition->is_identifier())
 		set_identifier_value(condition);

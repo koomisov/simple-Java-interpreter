@@ -13,8 +13,11 @@ class Program;
 
 class TokenItem
 {
-public:
+protected:
 	item_type type = item_type::EMPTY;
+
+public:
+
 	virtual bool executable() const = 0;
 
 	virtual void execute(Program*) = 0;
@@ -29,7 +32,6 @@ private:
 
 	using shPtr = std::shared_ptr<TokenItem>;
 	std::vector<shPtr> record;
-
 
 	std::unordered_map<std::string, var_type> nameToType;
 
@@ -63,12 +65,12 @@ public:
 		return record.size();
 	}
 
-	std::vector<shPtr> get_record() const
+	std::vector<shPtr>& get_record()
 	{
 		return record;
 	}
 
-	std::unordered_map<std::string, var_type> get_table() const
+	std::unordered_map<std::string, var_type>& get_table()
 	{
 		return nameToType;
 	}

@@ -4,8 +4,6 @@
 #include <string>
 #include <unordered_map>
 #include <initializer_list>
-#include <cctype>
-#include <cstdlib>
 #include <numeric>
 #include "Error.hpp"
 #include "Token.hpp"
@@ -16,21 +14,21 @@ class Scanner
 public:
 
 	Scanner(std::string filename) :
-		file(filename), line(1), max_num(std::numeric_limits<int>::max()), min_num(std::numeric_limits<int>::min())
+		file(filename), line(1)
 	{
 		if (!file.is_open())
-			throw Error("Error : can't open the file");
+			throw Error("Error : can't open the file", step_type::INIT);
 
 		symbol = file.get();
 		init_tables(); 
 	}
 
-	Token get_token();
-
 	line_type get_line() const 
 	{
 		return line; 
 	}
+
+	Token get_token();
 
 private:
 
@@ -47,9 +45,8 @@ private:
 	int symbol;
 	std::string current_token;
 	line_type line;
-	int max_num, min_num;
 
-	Token look_delimiters(std::string);
-	Token look_words(std::string);
-	Token to_number(std::string);
+	Token look_delimiters(std::string const&);
+	Token look_words(std::string const&);
+	Token to_number(std::string const&);
 };

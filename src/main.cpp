@@ -2,34 +2,41 @@
 //
 
 #include "pch.h"
-#include <iostream>
 #include <fstream>
-#include "Scanner.hpp"
 #include "Parser.hpp"
 #include "ExecProgram.hpp"
 
-using namespace std;
 
 
+void printErrorInfo(Error const& err)
+{
+	std::cout << "<" << err.step_name() << ">  ";
+	std::cout << "[line : " << err.what_line() << " ] : " << err.reason() << std::endl;
+}
+
+
+void execute(std::string const& filename)
+{
+	Parser parser(filename);
+	parser.start();
+
+	Program prog(parser.get_poliz(), parser.get_var_table());
+	prog.run();
+}
 
 int main()
 {
-	std::string filename = "PROGRAM1.txt";
-
+	std::string filename = "PROGRAM.txt";
 
 	try
 	{
-		Parser parser(filename);
-		parser.start();
-
-		Program prog(parser.get_poliz(), parser.get_var_table());
-		prog.run();
+		execute(filename);
 	}
 	catch (const Error& err)
 	{
-		std::cout << "<" << err.step_name() << ">  ";
-		std::cout << "[line : " << err.what_line() << " ] : " << err.reason() << std::endl;
+		printErrorInfo(err);
 	}
+
 
 	std::cout << std::endl;
 	system("pause");

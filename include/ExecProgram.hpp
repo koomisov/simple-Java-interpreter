@@ -32,16 +32,13 @@ class Program
 	unsigned int pIndex = 0;
 
 	void executeOutput();
-
 	void* get_variable_address(std::string const& varName);
+	void set_identifier_value(Operand*);
 
 public:
 
-	Program(std::vector<shPtr> const& vec, std::unordered_map<std::string, var_type> const &hash)
+	Program(std::vector<shPtr>& vec, std::unordered_map<std::string, var_type>& hash) : poliz(vec), nameToType(hash)
 	{
-		poliz = vec;
-		nameToType = hash;
-
 		unsigned int stringCount = 0, integerCount = 0;
 		for (auto const& Pair : hash)
 		{
@@ -61,23 +58,19 @@ public:
 		integerStorage.resize(integerCount);
 	}
 
+	void run();
 
-	void run(); 
-	void set_identifier_value(Operand*);
-
-	void execute(EndOfTheProgram const&); 
-	void execute(AssignmentOperation const&); 
+	void execute(EndOfTheProgram const&);
+	void execute(AssignmentOperation const&);
 	void execute(BinaryLogicalOperation const&);
 	void execute(UnaryLogicalOperation const&);
 	void execute(BinaryArithmeticOperation const&);
 	void execute(PrefArithmeticOperation const&);
 	void execute(PostArithmeticOperation const&);
-	void execute(ComparisonOperation const& );
+	void execute(ComparisonOperation const&);
 	void execute(PrintOperation const&);
 	void execute(IfBlock const&);
 	void execute(WhileBlock const&);
 	void execute(Jump const&);
 
 };
-
-

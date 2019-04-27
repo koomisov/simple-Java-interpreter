@@ -56,10 +56,8 @@ item_type Parser::_operation_POST(bool)
 	else if (current_token.get_type() == TOKEN_DEC)
 	{
 		next_token();
-		
 		return item_type::POST_DEC;
 	}
-
 	return item_type::EMPTY;
 }
 
@@ -67,18 +65,26 @@ item_type Parser::_operation_PREF()
 {
 	token_type t = current_token.get_type();
 
-	if (t == TOKEN_INC)
+	switch (t)
+	{
+	case TOKEN_INC:
 		return item_type::PREF_INC;
-	else if (t == TOKEN_DEC)
+	case TOKEN_DEC:
 		return item_type::PREF_DEC;
-	else
+	case TOKEN_PLUS:
+		return item_type::PLUS;
+	case TOKEN_MINUS:
+		return item_type::MINUS;
+	default: 
 		return item_type::EMPTY;
+	}
+
 }
 
 bool Parser::_operation_MD(bool first_arg)
 {
 	if (!first_arg)
-		throw Error("Syntax error: empty argument (operation_MD)", step_type::SYNT_ANALYSIS, scanner.get_line());
+		throw Error("Syntax error: empty argument (operation MD)", step_type::SYNT_ANALYSIS, scanner.get_line());
 
 	if (current_token.get_type() == TOKEN_MUL)
 	{
@@ -603,7 +609,7 @@ bool Parser::_statement()
 	case TOKEN_DEC:
 		_expression();
 		if (current_token.get_type() != TOKEN_SEMICOL)
-			throw Error("Synt er");
+			throw Error("Syntax error : delim <;> expected", step_type::SYNT_ANALYSIS, scanner.get_line());
 		next_token();
 		return true;
 
@@ -635,7 +641,7 @@ void Parser::_variable_declaration()
 	if (poliz.is_variable_declared(current_token.get_value()) == false)
 		poliz.declare_variable(curVarType, current_token.get_value());
 	else
-		throw Error("Logical error : variable has already been declared", step_type::SEM_ANALYSIS, scanner.get_line());
+		throw Error("Logical error : variable has already been declared", step_type::SYNT_ANALYSIS, scanner.get_line());
 
 	next_token();
 	while (current_token.get_type() == TOKEN_COMMA)
@@ -647,7 +653,7 @@ void Parser::_variable_declaration()
 		if (poliz.is_variable_declared(current_token.get_value()) == false)
 			poliz.declare_variable(curVarType, current_token.get_value());
 		else
-			throw Error("Logical error : variable has already been declared", step_type::SEM_ANALYSIS, scanner.get_line());
+			throw Error("Logical error : variable has already been declared", step_type::SYNT_ANALYSIS, scanner.get_line());
 
 		next_token();
 	}

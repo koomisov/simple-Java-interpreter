@@ -16,11 +16,11 @@ public:
 
 	void start();
 
-	std::unordered_map<std::string, var_type> get_var_table() {
+	std::unordered_map<std::string, var_type>& get_var_table() {
 		return poliz.get_table();
 	}
 
-	std::vector<std::shared_ptr<TokenItem>> get_poliz() {
+	std::vector<std::shared_ptr<TokenItem>>& get_poliz() {
 		return poliz.get_record();
 	}
 

@@ -31,7 +31,7 @@ Token Scanner::get_token()
 			break;
 
 		case state::IDENT:
-			if (isalpha(symbol) || (isdigit(symbol)) || (symbol == '_'))
+			if (isalpha(symbol) || isdigit(symbol) || (symbol == '_'))
 			{
 				current_token += symbol;
 				symbol = file.get();
@@ -170,7 +170,7 @@ Token Scanner::get_token()
 	return Token(TOKEN_FIN);
 }
 
-Token Scanner::look_delimiters(std::string token)
+Token Scanner::look_delimiters(std::string const& token)
 {
 	if (table_delimiters.count(token))
 		return Token(table_delimiters[token], token);
@@ -178,7 +178,7 @@ Token Scanner::look_delimiters(std::string token)
 		throw Error("Error in token: invalid combination or characters", step_type::LEX_ANALYSIS, line);
 }
 
-Token Scanner::look_words(std::string token)
+Token Scanner::look_words(std::string const& token)
 {
 	if (table_words.count(token))
 		return Token(table_words[token], token);
@@ -186,17 +186,19 @@ Token Scanner::look_words(std::string token)
 		return Token(TOKEN_ID, token);
 }
 
-Token Scanner::to_number(std::string token)
+Token Scanner::to_number(std::string const& token)
 {
 	try
 	{
 		int number = std::stoi(token);
-		if (number > max_num || number < min_num)
-			throw Error("Error in token: number out of range", step_type::LEX_ANALYSIS, line);
 		return Token(TOKEN_NUM, std::to_string(number));
 	}
-	catch (std::invalid_argument&) { throw Error("Error in token: invalid number", step_type::LEX_ANALYSIS, line); }
-	catch (std::out_of_range&) { throw Error("Error in token: number out of range", step_type::LEX_ANALYSIS, line); }
+	catch (std::invalid_argument&) {
+		throw Error("Error in token: invalid number", step_type::LEX_ANALYSIS, line);
+	}
+	catch (std::out_of_range&) { 
+		throw Error("Error in token: number out of range", step_type::LEX_ANALYSIS, line);
+	}
 }
 
 void Scanner::init_tables()
