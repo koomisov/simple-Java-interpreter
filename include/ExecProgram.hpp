@@ -72,5 +72,9 @@ public:
 	void execute(IfBlock const&);
 	void execute(WhileBlock const&);
 	void execute(Jump const&);
+<<<<<<< HEAD
 
 };
+=======
+};
+>>>>>>> ca2c1764daaf1b3070756aacdb8a61d6bcd275a0
