@@ -21,6 +21,7 @@ Warning: variables are not allowed to be initialized.
 
 ## Code example:
 
+%%
 public class MyClassName
 {
 	public static void main() 
@@ -44,3 +45,4 @@ public class MyClassName
      		}
   	 }
 }
+%%
