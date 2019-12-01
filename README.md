@@ -21,7 +21,7 @@ Warning: variables are not allowed to be initialized.
 
 ## Code example:
 
-```C++
+```Java
 public class MyClassName
 {
 	public static void main() 
